@@ -2,6 +2,8 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
+import csv
+import datetime
 
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5)
@@ -67,6 +69,33 @@ while cap.isOpened():
                 text = "looking up"
             else:
                 text = "forward"
+                
+            datetime_object=datetime.datetime.now()
+
+            dict_1={"x":None,"y":None,"z":None,"text":None,"date_time":None}
+
+            dict_1["x"]=x
+            dict_1["y"]=y
+            dict_1["z"]=z
+            dict_1["text"]=text
+            dict_1["date_time"]=datetime_object
+
+            dict_new=[]
+            dict_new.append(dict_1)
+
+            print("dict_1",dict_1)
+
+            headers=["x","y","z","text","date_time"]
+
+            with open('Sample.csv','w',newline="") as writeobj:
+                write=csv.DictWriter(writeobj,fieldnames=headers)
+                write.writeheader()
+                while cap.isOpened():
+                    # for data in dict_new:
+                    #     write.writerow(data)
+                    write.writerows(dict_new)
+
+            writeobj.close()
 
             nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
 
