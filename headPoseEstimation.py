@@ -69,13 +69,13 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        if y < -10:
+                        if y < -5:
                             text = "looking left"
-                        elif y > 10:
+                        elif y > 8:
                             text = "looking right"
-                        elif x < -10:
+                        elif x < -7:
                             text = "looking down"
-                        elif x > 10:
+                        elif x > 7:
                             text = "looking up"
                         else:
                             text = "forward"
@@ -126,4 +126,4 @@ class VideoAnnotation:
 
 if __name__ == "__main__":
     video_annotator = VideoAnnotation()
-    video_annotator.process(file_name='final.mp4')
+    video_annotator.process(file_name='anirban.mp4')
