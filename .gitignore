@@ -1,3 +1,6 @@
 .idea/
 videoFiles/
+__pycache__/
 *.avi
+*.mp3
+*.mp4

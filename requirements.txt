@@ -1,0 +1,8 @@
+mediapipe~=0.8.10.1
+opencv-python~=4.6.0.66
+
+moviepy~=1.0.3
+natsort~=8.1.0
+pytesseract~=0.3.9
+Pillow~=9.2.0
+numpy~=1.22.4
