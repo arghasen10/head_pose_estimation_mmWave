@@ -1,3 +1,6 @@
+import argparse
+import os
+
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -124,6 +127,18 @@ class VideoAnnotation:
         cv2.destroyAllWindows()
 
 
+def parseArg():
+    parser = argparse.ArgumentParser(description='Run Experiment')
+    parser.add_argument('--user', help='Select user running the vehicle', default="anirban",
+                        choices=["anirban", "sugandh"])
+    parser.add_argument('--ext', help='Extension of the video file', default=".mp4",
+                        choices=[".mp4", ".avi"])
+    args = parser.parse_args()
+    return args
+
+
 if __name__ == "__main__":
+    args = parseArg()
     video_annotator = VideoAnnotation()
-    video_annotator.process(file_name='anirban.mp4')
+    file_name = args.user + args.ext
+    video_annotator.process(file_name=file_name)
