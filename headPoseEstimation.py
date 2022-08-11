@@ -5,8 +5,10 @@ import mediapipe as mp
 import numpy as np
 import time
 
+
 class VideoAnnotation:
-    def __init__(self, min_detection_confidence=0.5, min_tracking_confidence=0.5, thickness=1, circle_radius=1):
+    def __init__(self, min_detection_confidence=0.5, min_tracking_confidence=0.5, thickness=1, circle_radius=1,
+                 y_min=-5, y_max=8, x_min=-7, x_max=7):
         self.thickness = thickness
         self.min_tracking_confidence = min_tracking_confidence
         self.min_detection_confidence = min_detection_confidence
@@ -19,6 +21,10 @@ class VideoAnnotation:
         self.mp_drawing = mp.solutions.drawing_utils
 
         self.drawing_spec = self.mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
+        self.y_min = y_min
+        self.y_max = y_max
+        self.x_min = x_min
+        self.x_max = x_max
 
     def process(self, file_name):
         cap = cv2.VideoCapture(file_name)
@@ -68,13 +74,13 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        if y < -5:
+                        if y < self.y_min:
                             text = "looking left"
-                        elif y > 8:
+                        elif y > self.y_max:
                             text = "looking right"
-                        elif x < -7:
+                        elif x < self.x_min:
                             text = "looking down"
-                        elif x > 7:
+                        elif x > self.x_max:
                             text = "looking up"
                         else:
                             text = "forward"
