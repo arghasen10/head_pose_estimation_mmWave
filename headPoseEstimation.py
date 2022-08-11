@@ -1,13 +1,9 @@
 import argparse
-import os
 
 import cv2
 import mediapipe as mp
 import numpy as np
 import time
-import csv
-import datetime
-
 
 class VideoAnnotation:
     def __init__(self, min_detection_confidence=0.5, min_tracking_confidence=0.5, thickness=1, circle_radius=1):
