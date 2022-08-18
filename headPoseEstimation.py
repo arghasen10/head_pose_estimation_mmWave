@@ -1,5 +1,5 @@
 import argparse
-
+from datetime import datetime, timedelta
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -28,9 +28,15 @@ class VideoAnnotation:
 
     def process(self, file_name):
         cap = cv2.VideoCapture(file_name)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        starttime = datetime.strptime(file_name.split('/')[-1].split('.')[0], "%Y%m%d_%H%M%S")
+        frame_count = 0
         while cap.isOpened():
             ret, frame = cap.read()
             if ret is True:
+                frame_count += 1
+                seconds = round(frame_count / fps)
+                video_time = starttime + timedelta(seconds=seconds)
                 start = time.time()
                 image = cv2.cvtColor(cv2.flip(frame, 1), cv2.COLOR_BGR2RGB)
                 image.flags.writeable = False
@@ -108,8 +114,8 @@ class VideoAnnotation:
 
                     fps = 1 / totaltime
                     # print("FPS: ", fps)
-
-                    cv2.putText(image, f'FPS: {int(fps)}', (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
+                    cv2.putText(image, str(video_time), (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 1, 2)
+                    # cv2.putText(image, f'FPS: {int(fps)}', (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
 
                     self.mp_drawing.draw_landmarks(
                         image=image,
