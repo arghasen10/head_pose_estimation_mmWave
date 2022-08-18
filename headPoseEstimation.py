@@ -8,7 +8,7 @@ import time
 
 class VideoAnnotation:
     def __init__(self, min_detection_confidence=0.5, min_tracking_confidence=0.5, thickness=1, circle_radius=1,
-                 y_min=-5, y_max=8, x_min=-7, x_max=7):
+                 y_min=-5, y_max=8, x_min=-7, x_max=7, frame_rate_val=25, user='sugandh'):
         self.thickness = thickness
         self.min_tracking_confidence = min_tracking_confidence
         self.min_detection_confidence = min_detection_confidence
@@ -25,8 +25,11 @@ class VideoAnnotation:
         self.y_max = y_max
         self.x_min = x_min
         self.x_max = x_max
+        self.frame_rate_val = frame_rate_val
+        self.user = user
 
     def process(self, file_name):
+
         cap = cv2.VideoCapture(file_name)
         fps = cap.get(cv2.CAP_PROP_FPS)
         starttime = datetime.strptime(file_name.split('/')[-1].split('.')[0], "%Y%m%d_%H%M%S")
@@ -80,16 +83,34 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        if y < self.y_min:
-                            text = "looking left"
+                        # if y < self.y_min:
+                        #     text = "looking left"
+                        # elif y > self.y_max:
+                        #     text = "looking right"
+                        # elif x < self.x_min:
+                        #     text = "looking down"
+                        # elif x > self.x_max:
+                        #     text = "looking up"
+                        # else:
+                        #     text = "forward"
+                        if (self.y_min < y < self.y_max) and (self.x_min < x < self.x_max):
+                            text = "looking_forward"
+                        elif (y > self.y_max) and (x < self.x_min):
+                            text = "looking_down_and_right"
+                        elif (y > self.y_max) and (x > self.x_max):
+                            text = "looking_up_and_right"
                         elif y > self.y_max:
-                            text = "looking right"
+                            text = "looking_right"
+                        elif (y < self.y_min) and (x < self.x_min):
+                            text = "looking_down_and_left"
+                        elif (y < self.y_min) and (x > self.x_max):
+                            text = "looking_up_and_left"
+                        elif y < self.y_min:
+                            text = "looking_left"
                         elif x < self.x_min:
-                            text = "looking down"
+                            text = "looking_down"
                         elif x > self.x_max:
-                            text = "looking up"
-                        else:
-                            text = "forward"
+                            text = "looking_up"
 
                         # datetime_object = datetime.datetime.now()
 
@@ -126,7 +147,7 @@ class VideoAnnotation:
 
                 cv2.imshow("Image", image)
 
-                if cv2.waitKey(1) & 0xFF == ord('s'):
+                if cv2.waitKey(self.frame_rate_val) & 0xFF == ord('s'):
                     break
             else:
                 break
