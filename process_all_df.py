@@ -104,41 +104,83 @@ def process_mmWave(filename):
     return mmwave_df
 
 
-anirban_nexar_path = '/home/argha/Documents/nexardata/processed/anirban/final_processed/'
-anirban_nexar_files = os.listdir(anirban_nexar_path)
-anirban_imu_df_list = []
-anirban_image_df_list = []
-for file in anirban_nexar_files:
-    if 'A.csv' in file:
-        df = process_imu(anirban_nexar_path + file)
+# anirban_nexar_path = '/home/argha/Documents/nexardata/processed/anirban/final_processed/'
+# anirban_nexar_files = os.listdir(anirban_nexar_path)
+# anirban_imu_df_list = []
+# anirban_image_df_list = []
+# for file in anirban_nexar_files:
+#     if 'A.csv' in file:
+#         df = process_imu(anirban_nexar_path + file)
+#         df['datetime'] = reformat_milli(df['datetime'])
+#         anirban_imu_df_list.append(df)
+#     elif '.csv' in file:
+#         df = process_image(anirban_nexar_path + file)
+#         df['datetime'] = reformat_milli(df['datetime'])
+#         anirban_image_df_list.append(df)
+#
+# anirban_imu_df = pd.concat(anirban_imu_df_list, axis=0, ignore_index=True)
+# anirban_image_df = pd.concat(anirban_image_df_list, axis=0, ignore_index=True)
+#
+# anirban_mmwave_path = '/home/argha/Documents/driver-head-pose/'
+# anirban_mmwave_files = os.listdir(anirban_mmwave_path)
+# anirban_mmwave_df_list = []
+#
+# for file in anirban_mmwave_files:
+#     if 'anriban' in file:
+#         df = process_mmWave(anirban_mmwave_path + file)
+#         df['datetime'] = reformat_milli(df['datetime'])
+#         anirban_mmwave_df_list.append(df)
+#
+# anirban_mmwave_df = pd.concat(anirban_mmwave_df_list, axis=0, ignore_index=True)
+#
+# print(anirban_imu_df.shape)
+# print(anirban_image_df.shape)
+# print(anirban_mmwave_df.shape)
+#
+# anirban_df = pd.merge(pd.merge(anirban_imu_df, anirban_image_df, on='datetime'), anirban_mmwave_df, on='datetime')
+# print(anirban_df.shape)
+# print(anirban_df.head())
+# print(anirban_df.columns)
+#
+# anirban_df.to_csv('/home/argha/Documents/driver-head-pose/final_anirban_df.csv')
+
+sugandh_nexar_path = '/home/argha/Documents/nexardata/processed/sugandh/'
+sugandh_nexar_files = os.listdir(sugandh_nexar_path)
+sugandh_imu_df_list = []
+sugandh_image_df_list = []
+for file in sugandh_nexar_files:
+    if 'A.dat' in file:
+        df = process_imu(sugandh_nexar_path + file)
         df['datetime'] = reformat_milli(df['datetime'])
-        anirban_imu_df_list.append(df)
-    elif '.csv' in file:
-        df = process_image(anirban_nexar_path + file)
+        sugandh_imu_df_list.append(df)
+    elif file == 'final_processed':
+        sugandh_image_files = os.listdir(sugandh_nexar_path+'final_processed/')
+        for fi in sugandh_image_files:
+            if '.csv' in fi:
+                df = process_image(sugandh_nexar_path+'final_processed/'+fi)
+                df['datetime'] = reformat_milli(df['datetime'])
+                sugandh_image_df_list.append(df)
+
+sugandh_imu_df = pd.concat(sugandh_imu_df_list, axis=0, ignore_index=True)
+sugandh_image_df = pd.concat(sugandh_image_df_list, axis=0, ignore_index=True)
+# sugandh_nexar_df = pd.merge(sugandh_imu_df, sugandh_image_df, on='datetime')
+
+sugandh_mmwave_path = '/home/argha/Documents/driver-head-pose/'
+sugandh_mmwave_files = os.listdir(sugandh_mmwave_path)
+sugandh_mmwave_df_list = []
+
+for file in sugandh_mmwave_files:
+    if 'sugandh' in file:
+        df = process_mmWave(sugandh_mmwave_path + file)
         df['datetime'] = reformat_milli(df['datetime'])
-        anirban_image_df_list.append(df)
+        sugandh_mmwave_df_list.append(df)
 
-anirban_imu_df = pd.concat(anirban_imu_df_list, axis=0, ignore_index=True)
-anirban_image_df = pd.concat(anirban_image_df_list, axis=0, ignore_index=True)
+sugandh_mmwave_df = pd.concat(sugandh_mmwave_df_list, axis=0, ignore_index=True)
+print(sugandh_mmwave_df.shape)
+print(sugandh_mmwave_df.head())
 
-anirban_mmwave_path = '/home/argha/Documents/driver-head-pose/'
-anirban_mmwave_files = os.listdir(anirban_mmwave_path)
-anirban_mmwave_df_list = []
-
-for file in anirban_mmwave_files:
-    if 'anriban' in file:
-        df = process_mmWave(anirban_mmwave_path + file)
-        df['datetime'] = reformat_milli(df['datetime'])
-        anirban_mmwave_df_list.append(df)
-
-anirban_mmwave_df = pd.concat(anirban_mmwave_df_list, axis=0, ignore_index=True)
-
-print(anirban_imu_df.shape)
-print(anirban_image_df.shape)
-print(anirban_mmwave_df.shape)
-
-anirban_df = pd.merge(pd.merge(anirban_imu_df, anirban_image_df, on='datetime'), anirban_mmwave_df, on='datetime')
-print(anirban_df.shape)
-print(anirban_df.head())
-print(anirban_df.columns)
-
+sugandh_df = pd.merge(pd.merge(sugandh_imu_df, sugandh_image_df, on='datetime'), sugandh_mmwave_df, on='datetime')
+print(sugandh_imu_df.shape)
+print(sugandh_image_df.shape)
+print(sugandh_df.shape)
+sugandh_df.to_csv('/home/argha/Documents/driver-head-pose/final_sugandh_df.csv')
