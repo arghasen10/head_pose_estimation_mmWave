@@ -1,30 +1,26 @@
+import argparse
+
 import pandas as pd
-import os
+import glob
 import time
 import numpy as np
 import json
 
 global_fps = 3
+name = 'sugandh'
 y_min = -4
 y_max = 9
 x_min = -6
 x_max = 6
 
 
-def reformat_milli(ser):
-    i = 0
-    t_list = []
-    past_time = ser[0]
-    for e in ser:
-        t_list.append(e + f"_{i}")
-        i += 1
-        if e != past_time:
-            i = 0
-            past_time = e
-    return t_list
+def reformat_milli(df):
+    df['datetime'] = [ts + f'_{i}' for ts, e in df.groupby('datetime').count().iloc[:, 0].to_dict().items() for i in
+                      range(e)]
+    return df
 
 
-def process_imu(filename):
+def read_imu(filename):
     imu_data = pd.read_csv(filename, header=None)
     timestamps = imu_data.iloc[:, 0].values
     time_ARR = []
@@ -35,9 +31,11 @@ def process_imu(filename):
 
     imu_data = imu_data[['datetime', 1]]
     imu_data.columns = ['datetime', 'acc']
+    return imu_data
 
+
+def process_imu(imu_data):
     g = imu_data.groupby('datetime')
-
     ds_list = []
     for name, gr in g:
         stride = int(gr.shape[0] / global_fps)
@@ -47,11 +45,11 @@ def process_imu(filename):
                                   for i in range(global_fps)]
                               })
         ds_list.append(ds_gr)
-    imu_data = pd.concat(ds_list, ignore_index=True)
-    return imu_data
+    imu_data = pd.concat(ds_list, ignore_index=True).dropna()
+    return (imu_data)
 
 
-def find_level(x, y, z):
+def find_level(x, y, z, x_min, x_max, y_min, y_max=9):
     global text
     if (y_min < y < y_max) and (x_min < x < x_max):
         text = "looking_forward"
@@ -74,10 +72,14 @@ def find_level(x, y, z):
     return text
 
 
-def process_image(filename):
+def read_image(filename):
     image_df = pd.read_csv(filename)
     image_df['datetime'] = image_df[['date', 'time']].apply(lambda e: e[0] + ' ' + e[1], axis=1)
     image_df = image_df[['datetime', 'x', 'y', 'z']]
+    return image_df
+
+
+def process_image(image_df, x_min, x_max, y_min):
     g = image_df.groupby('datetime')
     ds_list = []
     for name, gr in g:
@@ -89,8 +91,8 @@ def process_image(filename):
                               })
         ds_list.append(ds_gr)
     image_df = pd.concat(ds_list, ignore_index=True)
-    image_df['level'] = image_df[['x', 'y', 'z']].apply(lambda e: find_level(e[0], e[1], e[2]), axis=1)
-    return image_df
+    image_df['level'] = image_df[['x', 'y', 'z']].apply(lambda e: find_level(e[0], e[1], e[2], x_min, x_max, y_min), axis=1)
+    return image_df.dropna()
 
 
 def process_mmWave(filename):
@@ -100,87 +102,42 @@ def process_mmWave(filename):
         mmwave_df = mmwave_df.append(d['answer'], ignore_index=True)
 
     mmwave_df['datetime'] = mmwave_df['timenow'].apply(lambda e: '2022-08-08 ' + ':'.join(e.split('_')))
-    mmwave_df = mmwave_df[['datetime', 'rangeIdx', 'dopplerIdx', 'x_coord', 'y_coord', 'z_coord', 'rp_y', 'doppz']]
-    return mmwave_df
+    mmwave_df = mmwave_df[['datetime', 'x_coord', 'y_coord', 'z_coord', 'rp_y', 'doppz']]
+    return mmwave_df.dropna()
 
 
-# anirban_nexar_path = '/home/argha/Documents/nexardata/processed/anirban/final_processed/'
-# anirban_nexar_files = os.listdir(anirban_nexar_path)
-# anirban_imu_df_list = []
-# anirban_image_df_list = []
-# for file in anirban_nexar_files:
-#     if 'A.csv' in file:
-#         df = process_imu(anirban_nexar_path + file)
-#         df['datetime'] = reformat_milli(df['datetime'])
-#         anirban_imu_df_list.append(df)
-#     elif '.csv' in file:
-#         df = process_image(anirban_nexar_path + file)
-#         df['datetime'] = reformat_milli(df['datetime'])
-#         anirban_image_df_list.append(df)
-#
-# anirban_imu_df = pd.concat(anirban_imu_df_list, axis=0, ignore_index=True)
-# anirban_image_df = pd.concat(anirban_image_df_list, axis=0, ignore_index=True)
-#
-# anirban_mmwave_path = '/home/argha/Documents/driver-head-pose/'
-# anirban_mmwave_files = os.listdir(anirban_mmwave_path)
-# anirban_mmwave_df_list = []
-#
-# for file in anirban_mmwave_files:
-#     if 'anriban' in file:
-#         df = process_mmWave(anirban_mmwave_path + file)
-#         df['datetime'] = reformat_milli(df['datetime'])
-#         anirban_mmwave_df_list.append(df)
-#
-# anirban_mmwave_df = pd.concat(anirban_mmwave_df_list, axis=0, ignore_index=True)
-#
-# print(anirban_imu_df.shape)
-# print(anirban_image_df.shape)
-# print(anirban_mmwave_df.shape)
-#
-# anirban_df = pd.merge(pd.merge(anirban_imu_df, anirban_image_df, on='datetime'), anirban_mmwave_df, on='datetime')
-# print(anirban_df.shape)
-# print(anirban_df.head())
-# print(anirban_df.columns)
-#
-# anirban_df.to_csv('/home/argha/Documents/driver-head-pose/final_anirban_df.csv')
+def get_final_df(name, x_min, x_max, y_min):
+    nexar_path = f'/home/argha/Documents/nexardata/processed/{name}/'
+    mmwave_path = '/home/argha/Documents/driver-head-pose/'
+    image_path = f'/home/argha/Documents/nexardata/processed/{name}/final_processed/'
 
-sugandh_nexar_path = '/home/argha/Documents/nexardata/processed/sugandh/'
-sugandh_nexar_files = os.listdir(sugandh_nexar_path)
-sugandh_imu_df_list = []
-sugandh_image_df_list = []
-for file in sugandh_nexar_files:
-    if 'A.dat' in file:
-        df = process_imu(sugandh_nexar_path + file)
-        df['datetime'] = reformat_milli(df['datetime'])
-        sugandh_imu_df_list.append(df)
-    elif file == 'final_processed':
-        sugandh_image_files = os.listdir(sugandh_nexar_path+'final_processed/')
-        for fi in sugandh_image_files:
-            if '.csv' in fi:
-                df = process_image(sugandh_nexar_path+'final_processed/'+fi)
-                df['datetime'] = reformat_milli(df['datetime'])
-                sugandh_image_df_list.append(df)
+    imu_data = reformat_milli(process_imu(pd.concat([read_imu(f) for f in glob.glob(nexar_path + '**A.dat')])))
+    mmwave_data = pd.concat([reformat_milli(process_mmWave(f)) for f in glob.glob(mmwave_path + f'**{name}_drive.txt')])
+    image_df = reformat_milli(process_image(pd.concat([read_image(f) for f in glob.glob(image_path + '**.csv')]), x_min, x_max, y_min))
 
-sugandh_imu_df = pd.concat(sugandh_imu_df_list, axis=0, ignore_index=True)
-sugandh_image_df = pd.concat(sugandh_image_df_list, axis=0, ignore_index=True)
-# sugandh_nexar_df = pd.merge(sugandh_imu_df, sugandh_image_df, on='datetime')
+    image_df.set_index('datetime', inplace=True)
+    imu_data.set_index('datetime', inplace=True)
+    mmwave_data.set_index('datetime', inplace=True)
 
-sugandh_mmwave_path = '/home/argha/Documents/driver-head-pose/'
-sugandh_mmwave_files = os.listdir(sugandh_mmwave_path)
-sugandh_mmwave_df_list = []
+    processed = pd.concat([image_df, imu_data, mmwave_data], join='inner', axis=1).reset_index()
+    return processed
 
-for file in sugandh_mmwave_files:
-    if 'sugandh' in file:
-        df = process_mmWave(sugandh_mmwave_path + file)
-        df['datetime'] = reformat_milli(df['datetime'])
-        sugandh_mmwave_df_list.append(df)
 
-sugandh_mmwave_df = pd.concat(sugandh_mmwave_df_list, axis=0, ignore_index=True)
-print(sugandh_mmwave_df.shape)
-print(sugandh_mmwave_df.head())
+def parseArg():
+    parser = argparse.ArgumentParser(description='Collect dataframe for each user')
+    parser.add_argument('--user', help='Select user running the vehicle', default="anirban",
+                        choices=["anirban", "sugandh"])
+    parser.add_argument('--x_min', help='x_min threshold', choices=[-6, -4])
+    parser.add_argument('--y_min', help='y_min threshold', choices=[-4, -3])
+    parser.add_argument('--x_max', help='x_max threshold', choices=[6, 4])
+    args = parser.parse_args()
+    return args
 
-sugandh_df = pd.merge(pd.merge(sugandh_imu_df, sugandh_image_df, on='datetime'), sugandh_mmwave_df, on='datetime')
-print(sugandh_imu_df.shape)
-print(sugandh_image_df.shape)
-print(sugandh_df.shape)
-sugandh_df.to_csv('/home/argha/Documents/driver-head-pose/final_sugandh_df.csv')
+
+if __name__ == "__main__":
+    args = parseArg()
+    mmwave_path = '/home/argha/Documents/driver-head-pose/'
+    df = get_final_df("anirban", -6, -4, 6)
+    print(df.shape)
+    print(df.head(10))
+    df.to_csv(mmwave_path + f"final_{args.user}_df.csv", index=False)
