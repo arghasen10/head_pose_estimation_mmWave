@@ -7,4 +7,4 @@ __pycache__/
 merge_videos.py
 .ipynb_checkpoints/
 read_imu.py
-*.ipynb
+process_mmwave_and_video.ipynb
