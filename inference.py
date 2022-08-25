@@ -4,7 +4,7 @@ import math
 import numpy as np
 
 mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(min_detection_confidence=0.3, min_tracking_confidence=0.8)
+face_mesh = mp_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 mp_drawing = mp.solutions.drawing_utils
 drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
@@ -136,22 +136,21 @@ decay = 0.9  # use decay to smoothen the noise in feature values
 
 input_data = []
 frame_before_run = 0
-
+calib_frame_count = 0
 ears = []
 mars = []
 pucs = []
 moes = []
-
-cap = cv2.VideoCapture(0)
-print(cap.isOpened())
-calib_frame_count = 0
 flag = 0
+cap = cv2.VideoCapture('/home/argha/Downloads/mm_wave-20220823T102712Z-001/mm_wave/videodata/20220822_170335.avi')
+print(cap.isOpened())
+
 while cap.isOpened():
     success, image = cap.read()
     calib_frame_count += 1
     if not success:
         print("Ignoring empty camera frame.")
-        continue
+        break
     if calib_frame_count <= 25:
         ear, mar, puc, moe, image = run_face_mp(image, face_mesh)
         ears.append(ear)
@@ -201,9 +200,10 @@ while cap.isOpened():
 
     print('Ear, MAR, PUC, MOE ', (ear_main, mar_main, puc_main, moe_main))
     yawning = False
-    if mar_main > 70:
+    if mar_main > 28:
         yawning = True
 
+    cv2.putText(image, f'Yawning: {yawning}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, 2)
     cv2.imshow('MediaPipe FaceMesh', image)
     if cv2.waitKey(5) & 0xFF == ord("q"):
         break
