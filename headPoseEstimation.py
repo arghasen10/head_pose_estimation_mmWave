@@ -6,7 +6,7 @@ import mediapipe as mp
 import numpy as np
 import csv
 
-header = ['date', 'time', 'x', 'y', 'z', 'level']
+header = ["datetime", "x", "y", "z", "mar", "activity"]
 log = {}
 level_text = ''
 
@@ -201,10 +201,11 @@ class VideoAnnotation:
     # Euclaidean distance
 
     def process(self, file_name):
-        cap = cv2.VideoCapture(0)
+        level_text = ''
+        cap = cv2.VideoCapture(file_name)
         fps = cap.get(cv2.CAP_PROP_FPS)
         print('fps: ', fps)
-        # starttime = datetime.strptime(file_name.split('/')[-1].split('.')[0], "%Y%m%d_%H%M%S")
+        starttime = datetime.strptime(file_name.split('/')[-1].split('.')[0], "%Y%m%d_%H_%M_%S")
         frame_count = 0
         while cap.isOpened():
             ret, frame = cap.read()
@@ -212,8 +213,8 @@ class VideoAnnotation:
                 self.calib_frame_count += 1
                 frame_count += 1
                 seconds = round(frame_count / fps)
-                # video_time = starttime + timedelta(seconds=seconds)
-                if self.calib_frame_count <= 25:
+                video_time = starttime + timedelta(seconds=seconds)
+                if self.calib_frame_count <= fps:
                     ear, mar, puc, moe, image = run_face_mp(frame, self.face_mesh)
                     self.ears.append(ear)
                     self.mars.append(mar)
@@ -283,25 +284,34 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        if (self.y_min < y < self.y_max) and (self.x_min < x < self.x_max):
-                            level_text = "looking_forward"
-                        elif (y > self.y_max) and (x < self.x_min):
-                            level_text = "looking_down_and_right"
-                        elif (y > self.y_max) and (x > self.x_max):
-                            level_text = "looking_up_and_right"
-                        elif y > self.y_max:
-                            level_text = "looking_right"
-                        elif (y < self.y_min) and (x < self.x_min):
-                            level_text = "looking_down_and_left"
-                        elif (y < self.y_min) and (x > self.x_max):
-                            level_text = "looking_up_and_left"
-                        elif y < self.y_min:
-                            level_text = "looking_left"
-                        elif x < self.x_min:
-                            level_text = "looking_down"
-                        elif x > self.x_max:
-                            level_text = "looking_up"
+                        yaw_min = -8
+                        yaw_max = 10
+                        for_yaw_min = -4
+                        for_yaw_max = 6
+                        for_pitch_min = 3
+                        for_pitch_max = 10
+                        talk_min = 9.5
+                        talk_max = 30
+                        yawn_min = 50
+                        up_pitch_min = 12
+                        up_yaw_min = -4
+                        up_yaw_max = 6
 
+                        if y < yaw_min:
+                            level_text = "looking right"
+                        elif y > yaw_max:
+                            level_text = "looking left"
+                        elif for_yaw_min < y < for_yaw_max and for_pitch_min < x < for_pitch_max:
+                            if talk_min < self.mar_main < talk_max:
+                                level_text = "Talking"
+                            elif self.mar_main > yawn_min:
+                                level_text = "yawning"
+                            else:
+                                level_text = "looking forward"
+                        elif x > up_pitch_min and up_yaw_min < y < up_yaw_max:
+                            level_text = "looking up"
+                        log = {"datetime": video_time, "activity": level_text}
+                        print(log)
                         # datetime_object = datetime.datetime.now()
 
                         nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix,
@@ -313,14 +323,14 @@ class VideoAnnotation:
                         cv2.line(image, p1, p2, (255, 0, 0), 3)
 
                         cv2.putText(image, level_text, (10, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
-                        cv2.putText(image, 'x: ' + str(np.round(x, 2)), (500, 250), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        cv2.putText(image, 'x: ' + str(np.round(x, 2)), (800, 250), cv2.FONT_HERSHEY_SIMPLEX, 1,
                                     (0, 0, 255), 2)
-                        cv2.putText(image, 'y: ' + str(np.round(y, 2)), (500, 300), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        cv2.putText(image, 'y: ' + str(np.round(y, 2)), (800, 300), cv2.FONT_HERSHEY_SIMPLEX, 1,
                                     (0, 0, 255), 2)
-                        cv2.putText(image, 'z: ' + str(np.round(z, 2)), (500, 350), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        cv2.putText(image, 'z: ' + str(np.round(z, 2)), (800, 350), cv2.FONT_HERSHEY_SIMPLEX, 1,
                                     (0, 0, 255), 2)
 
-                    # cv2.putText(image, str(video_time), (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, 2)
+                    cv2.putText(image, str(video_time), (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, 2)
 
                     self.mp_drawing.draw_landmarks(
                         image=image,
@@ -367,14 +377,15 @@ class VideoAnnotation:
                 if self.frame_before_run >= 15 and len(self.input_data) == 20:
                     self.frame_before_run = 0
 
-                print('Ear, MAR, PUC, MOE ', (self.ear_main, self.mar_main, self.puc_main, self.moe_main))
+                print('Datetime, Ear, MAR, PUC, MOE ', (video_time, self.ear_main, self.mar_main, self.puc_main, self.moe_main))
                 yawning = False
                 if self.mar_main > 28:
                     yawning = True
 
+                cv2.putText(image, 'MAR: ' + str(self.mar_main), (800, 400), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                            (0, 0, 255), 2)
                 cv2.putText(image, f'Yawning: {yawning}', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, 2)
                 cv2.imshow("Image", image)
-
                 if cv2.waitKey(self.frame_rate_val) & 0xFF == ord('s'):
                     break
             else:
@@ -384,15 +395,15 @@ class VideoAnnotation:
         cv2.destroyAllWindows()
 
     def takelog(self, file_name):
-        global log, level_text
-        # csv_file_name = file_name.split('.')[0] + '.csv'
-        #
-        # with open(csv_file_name, 'w') as f:
-        #     csv.DictWriter(f, fieldnames=header).writeheader()
+        level_text = ''
+        csv_file_name = file_name.split('.')[0] + '.csv'
 
-        cap = cv2.VideoCapture(0)
+        with open(csv_file_name, 'w') as f:
+            csv.DictWriter(f, fieldnames=header).writeheader()
+        cap = cv2.VideoCapture(file_name)
         fps = cap.get(cv2.CAP_PROP_FPS)
-        starttime = datetime.strptime(file_name.split('/')[-1].split('.')[0], "%Y%m%d_%H%M%S")
+        print('fps: ', fps)
+        starttime = datetime.strptime(file_name.split('/')[-1].split('.')[0], "%Y%m%d_%H_%M_%S")
         frame_count = 0
         while cap.isOpened():
             ret, frame = cap.read()
@@ -401,7 +412,7 @@ class VideoAnnotation:
                 frame_count += 1
                 seconds = round(frame_count / fps)
                 video_time = starttime + timedelta(seconds=seconds)
-                if self.calib_frame_count <= 25:
+                if self.calib_frame_count <= fps:
                     ear, mar, puc, moe, image = run_face_mp(frame, self.face_mesh)
                     self.ears.append(ear)
                     self.mars.append(mar)
@@ -414,10 +425,13 @@ class VideoAnnotation:
                     self.mars = np.array(self.mars)
                     self.pucs = np.array(self.pucs)
                     self.moes = np.array(self.moes)
-                    self.ears_norm, self.mars_norm, self.pucs_norm, self.moes_norm = [self.ears.mean(), self.ears.std()], \
-                                                                 [self.mars.mean(), self.mars.std()], \
-                                                                 [self.pucs.mean(), self.pucs.std()], \
-                                                                 [self.moes.mean(), self.moes.std()]
+                    self.ears_norm, self.mars_norm, self.pucs_norm, self.moes_norm = [self.ears.mean(),
+                                                                                      self.ears.std()], \
+                                                                                     [self.mars.mean(),
+                                                                                      self.mars.std()], \
+                                                                                     [self.pucs.mean(),
+                                                                                      self.pucs.std()], \
+                                                                                     [self.moes.mean(), self.moes.std()]
                     self.flag = 1
 
                 image = cv2.cvtColor(cv2.flip(frame, 1), cv2.COLOR_BGR2RGB)
@@ -471,27 +485,33 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        if (self.y_min < y < self.y_max) and (self.x_min < x < self.x_max):
-                            level_text = "looking_forward"
-                        elif (y > self.y_max) and (x < self.x_min):
-                            level_text = "looking_down_and_right"
-                        elif (y > self.y_max) and (x > self.x_max):
-                            level_text = "looking_up_and_right"
-                        elif y > self.y_max:
-                            level_text = "looking_right"
-                        elif (y < self.y_min) and (x < self.x_min):
-                            level_text = "looking_down_and_left"
-                        elif (y < self.y_min) and (x > self.x_max):
-                            level_text = "looking_up_and_left"
-                        elif y < self.y_min:
-                            level_text = "looking_left"
-                        elif x < self.x_min:
-                            level_text = "looking_down"
-                        elif x > self.x_max:
-                            level_text = "looking_up"
+                        yaw_min = -8
+                        yaw_max = 10
+                        for_yaw_min = -4
+                        for_yaw_max = 6
+                        for_pitch_min = 3
+                        for_pitch_max = 10
+                        talk_min = 9.5
+                        talk_max = 30
+                        yawn_min = 50
+                        up_pitch_min = 12
+                        up_yaw_min = -4
+                        up_yaw_max = 6
 
-                        log = {'date': video_time.date(), 'time': video_time.time(), 'x': x, 'y': y, 'z': z,
-                               'level': level_text}
+                        if y < yaw_min:
+                            level_text = "looking right"
+                        elif y > yaw_max:
+                            level_text = "looking left"
+                        elif for_yaw_min < y < for_yaw_max and for_pitch_min < x < for_pitch_max:
+                            if talk_min < self.mar_main < talk_max:
+                                level_text = "Talking"
+                            elif self.mar_main > yawn_min:
+                                level_text = "yawning"
+                            else:
+                                level_text = "looking forward"
+                        elif x > up_pitch_min and up_yaw_min < y < up_yaw_max:
+                            level_text = "looking up"
+                        log = {"datetime": video_time, "x": x, "y": y, "z": z, "mar": self.mar_main, "activity": level_text}
 
                     ear = eye_feature(landmarks_positions)
                     mar = mouth_feature(landmarks_positions)
@@ -531,15 +551,10 @@ class VideoAnnotation:
                 if self.frame_before_run >= 15 and len(self.input_data) == 20:
                     self.frame_before_run = 0
 
-                print('Ear, MAR, PUC, MOE ', (self.ear_main, self.mar_main, self.puc_main, self.moe_main))
-                yawning = False
-                if self.mar_main > 28:
-                    yawning = True
-                log['yawning'] = yawning
-                print(log)
-                # with open(csv_file_name, 'a') as f:
-                #     writer = csv.DictWriter(f, header)
-                #     writer.writerow(log)
+                with open(csv_file_name, 'a') as f:
+                    writer = csv.DictWriter(f, header)
+                    writer.writerow(log)
+
                 if cv2.waitKey(self.frame_rate_val) & 0xFF == ord('s'):
                     break
             else:
@@ -563,5 +578,4 @@ if __name__ == "__main__":
     # args = parseArg()
     video_annotator = VideoAnnotation()
     # file_name = args.user + args.ext
-    video_annotator.process(file_name='/home/argha/Downloads/mm_wave-20220823T102712Z-001/mm_wave/videodata'
-                                      '/20220822_170335.avi')
+    video_annotator.takelog(file_name='/home/argha/Documents/github/head_pose_estimation_mmWave/static_dataset/20220827_20_04_26.mp4')

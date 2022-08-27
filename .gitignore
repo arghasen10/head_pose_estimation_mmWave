@@ -8,3 +8,4 @@ merge_videos.py
 .ipynb_checkpoints/
 read_imu.py
 process_mmwave_and_video.ipynb
+static_dataset/
