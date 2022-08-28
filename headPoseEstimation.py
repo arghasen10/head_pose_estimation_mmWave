@@ -233,7 +233,7 @@ class VideoAnnotation:
                                                                  [self.moes.mean(), self.moes.std()]
                     self.flag = 1
 
-                image = cv2.cvtColor(cv2.flip(frame, 1), cv2.COLOR_BGR2RGB)
+                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 image.flags.writeable = False
                 results = self.face_mesh.process(image)
                 image.flags.writeable = True
@@ -284,16 +284,16 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        yaw_min = -8
-                        yaw_max = 10
+                        yaw_min = -10
+                        yaw_max = 7
                         for_yaw_min = -4
                         for_yaw_max = 6
-                        for_pitch_min = 3
-                        for_pitch_max = 10
-                        talk_min = 9.5
-                        talk_max = 30
-                        yawn_min = 50
-                        up_pitch_min = 12
+                        for_pitch_min = 0
+                        for_pitch_max = 9
+                        talk_min = 0.5
+                        talk_max = 3
+                        yawn_min = 4
+                        up_pitch_min = 10
                         up_yaw_min = -4
                         up_yaw_max = 6
 
@@ -485,16 +485,16 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        yaw_min = -8
-                        yaw_max = 10
+                        yaw_min = -10
+                        yaw_max = 7
                         for_yaw_min = -4
                         for_yaw_max = 6
-                        for_pitch_min = 3
-                        for_pitch_max = 10
-                        talk_min = 9.5
-                        talk_max = 30
-                        yawn_min = 50
-                        up_pitch_min = 12
+                        for_pitch_min = 0
+                        for_pitch_max = 9
+                        talk_min = 0.5
+                        talk_max = 3
+                        yawn_min = 4
+                        up_pitch_min = 10
                         up_yaw_min = -4
                         up_yaw_max = 6
 
@@ -578,4 +578,4 @@ if __name__ == "__main__":
     # args = parseArg()
     video_annotator = VideoAnnotation()
     # file_name = args.user + args.ext
-    video_annotator.takelog(file_name='/home/argha/Documents/github/head_pose_estimation_mmWave/static_dataset/20220827_20_04_26.mp4')
+    video_annotator.takelog(file_name='/home/argha/Documents/github/head_pose_estimation_mmWave/driving_dataset/dataset/20220828_17_15_04.mp4')
