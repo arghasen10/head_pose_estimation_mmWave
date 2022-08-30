@@ -8,5 +8,10 @@ merge_videos.py
 .ipynb_checkpoints/
 read_imu.py
 process_mmwave_and_video.ipynb
-static_dataset/
-driving_dataset/
+driving_dataset/dataset/*.mp4
+static_dataset/*.mp4
+driving_dataset/dataset/*.txt
+static_dataset/*.txt
+static_dataset/*.csv
+driving_dataset/dataset/*.csv
+driving_dataset/dataset/processed/anim.gif
