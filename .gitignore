@@ -15,3 +15,4 @@ static_dataset/*.txt
 static_dataset/*.csv
 driving_dataset/dataset/*.csv
 driving_dataset/dataset/processed/anim.gif
+driving_dataset/dataset/processed/*.ipynb
