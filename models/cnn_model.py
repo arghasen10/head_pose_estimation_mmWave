@@ -1,15 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.applications.vgg16 import VGG16
-from tensorflow.keras.applications.vgg16 import preprocess_input
-from tensorflow.keras import layers, models
 import sys
 from library.augumentation import Dataset
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
 sys.path.append('../')
 
 
