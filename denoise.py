@@ -5,11 +5,12 @@ import glob
 import seaborn as sns
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import argparse
 
 
 def read_data(f):
     df = pd.read_csv(f)
-    df['user'] = f.split("_")[1]
+    df['user'] = f.split("/")[-1].split("_")[1]
     return df
 
 
@@ -65,6 +66,7 @@ def plot_animation(df):
         axs[0].set_title(df['activity'][i])
         sns.heatmap(doppz[i], ax=axs[0], cbar_ax=axs[1])
         fig.canvas.draw()
+    plt.show()
 
 
 def plot_relation(df, xlim0=100, xlim1=700):
@@ -77,7 +79,7 @@ def plot_relation(df, xlim0=100, xlim1=700):
     print(labels)
     sum_val = doppz.reshape(-1, 128 * 64).sum(axis=1)
     ax.scatter(range(len(sum_val)), sum_val, c=labels)
-    ax.plot(range(len(sum_val)), len(sum_val), linestyle='--', c='k')
+    ax.plot(range(len(sum_val)), sum_val, linestyle='--', c='k')
     ax.set_xlim(xlim0, xlim1)
 
     pathes = [mpatches.Patch(color=c, label=v) for v, c in map_dict.items()]
@@ -93,10 +95,25 @@ def plot_relation(df, xlim0=100, xlim1=700):
     ax.plot(df['x'].values, label='x')
     ax.legend()
     ax.set_xlim(xlim0, xlim1)
+    plt.show()
 
 
-df = pd.concat([read_data(f) for f in glob.glob("./data/*")]).reset_index(drop=False)
-df['doppz'] = string_to_matrix(df['doppz'])
-df['doppz'] = noise_removal(df).tolist()
-# plot_animation(df)
-plot_relation(df[df.user == 'bishakh1'], 0, len(df[df.user == 'bishakh1']))
+def parseArg():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--sourcepath", help="Root Path to dataset")
+    parser.add_argument("-d", "--destinationpath", help="Destination to store")
+    parser.add_argument("-u", "--user", help="User's data selected")
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    args = parseArg()
+    df = pd.concat([read_data(f) for f in glob.glob(args.sourcepath)]).reset_index(drop=False)
+    df['doppz'] = string_to_matrix(df['doppz'])
+    df['doppz'] = noise_removal(df).tolist()
+    # plot_animation(df)
+    plot_relation(df[df.user == args.user], 0, 300)
+    for u in df['user'].unique():
+        filepath = 'driving_dataset/dataset/processed/data/'
+        df[df.user == u].to_csv(f'driving_dataset/dataset/processed/data//denoised/{u}.csv')
