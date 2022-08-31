@@ -7,7 +7,7 @@ def read_data(f):
     df['user']=f.split("_")[1]
     return df
 
-def load_dataset(loc="./data"):
-    df=pd.concat([read_data(f) for f in glob.glob(loc+"/*")])
+def load_dataset(loc="./data/*"):
+    df=pd.concat([read_data(f) for f in glob.glob(loc)])
     df['doppz']=df['doppz'].apply(lambda e:eval(e))
-    return df[['user','doppz','activity']]
+    return df[['user','doppz','activity']].reset_index(drop=True)
