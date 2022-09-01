@@ -19,3 +19,5 @@ driving_dataset/dataset/processed/*.ipynb
 *.ipynb
 /**/ipynb_checkpoints
 /test
+/**/logs
+/**/*.h5
