@@ -6,7 +6,8 @@ from library.augumentation import Dataset
 import numpy as np
 from sklearn.model_selection import train_test_split
 import datetime
-tf.random.set_seed(101)
+tf.random.set_seed(32)
+np.random.seed(32)
 import argparse
 
 parser = argparse.ArgumentParser()
