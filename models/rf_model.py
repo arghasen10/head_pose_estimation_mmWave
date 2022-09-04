@@ -52,8 +52,9 @@ print(classification_report(y_train, pred))
 pred = rf.predict(X_test)
 
 print(classification_report(y_test, pred))
-
-sns.heatmap(confusion_matrix(y_test, pred), annot=True)
+cm = confusion_matrix(y_test, pred)
+cmn = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+sns.heatmap(cmn, annot=True, fmt='.2f', cmap='Blues')
 plt.xticks(ticks=list(lbl_map.values()), labels=list(lbl_map.keys()), rotation=45)
 plt.yticks(ticks=list(lbl_map.values()), labels=list(lbl_map.keys()), rotation=45)
 plt.tight_layout()
