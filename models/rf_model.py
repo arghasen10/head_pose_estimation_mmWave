@@ -1,4 +1,5 @@
 import sys
+sys.path.append('../')
 from library.augumentation import Dataset
 import numpy as np
 import seaborn as sns
@@ -7,8 +8,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
-
-sys.path.append('../')
 
 
 def PoolOp(img, ksize=(16, 16), op=np.mean):
@@ -58,3 +57,4 @@ sns.heatmap(confusion_matrix(y_test, pred), annot=True)
 plt.xticks(ticks=list(lbl_map.values()), labels=list(lbl_map.keys()), rotation=45)
 plt.yticks(ticks=list(lbl_map.values()), labels=list(lbl_map.keys()), rotation=45)
 plt.tight_layout()
+plt.show()
