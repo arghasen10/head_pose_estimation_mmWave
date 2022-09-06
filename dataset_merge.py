@@ -4,7 +4,7 @@ import numpy as np
 import json
 
 global_fps = 2
-name = 'argha'
+name = 'anirban_drive20'
 
 
 def get_label(sort_dic):
@@ -64,13 +64,13 @@ def process_mmWave(filename):
     for d in data:
         mmwave_df = mmwave_df.append(d['answer'], ignore_index=True)
 
-    mmwave_df['datetime'] = mmwave_df['timenow'].apply(lambda e: '2022-08-27 ' + ':'.join(e.split('_')))
-    mmwave_df = mmwave_df[['datetime', 'x_coord', 'y_coord', 'z_coord', 'rp_y', 'doppz']]
+    mmwave_df['datetime'] = mmwave_df['timenow'].apply(lambda e: '2022-09-03 ' + ':'.join(e.split('_')))
+    mmwave_df = mmwave_df[['datetime', 'rp_y', 'noiserp_y', 'doppz']]
     return mmwave_df.dropna()
 
 
 # file paths
-base_path = '/home/argha/Documents/github/head_pose_estimation_mmWave/static_dataset'
+base_path = '/home/argha/Documents/github/head_pose_estimation_mmWave/driving_dataset/dataset/'
 mmwave_path = f'{base_path}/{name}**dataset.txt'
 image_path = f'{base_path}/{name}**.csv'
 mmwave_data = pd.concat([reformat_milli(process_mmWave(f)) for f in glob.glob(mmwave_path)])
@@ -78,4 +78,4 @@ image_df = reformat_milli(process_image(pd.concat([read_image(f) for f in glob.g
 image_df.set_index('datetime', inplace=True)
 mmwave_data.set_index('datetime', inplace=True)
 processed = pd.concat([image_df, mmwave_data], join='inner', axis=1).reset_index()
-processed.to_csv(base_path + f"/afinal_{name}_df.csv", index=False)
+processed.to_csv(base_path + f"/final_{name}_df.csv", index=False)

@@ -116,4 +116,4 @@ if __name__ == "__main__":
     plot_relation(df[df.user == args.user], 0, 300)
     for u in df['user'].unique():
         filepath = 'driving_dataset/dataset/processed/data/'
-        df[df.user == u].to_csv(f'driving_dataset/dataset/processed/data//denoised/{u}.csv')
+        df[df.user == u].to_csv(f'driving_dataset/dataset/processed/denoised/{u}.csv')

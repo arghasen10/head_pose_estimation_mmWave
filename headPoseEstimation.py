@@ -161,7 +161,7 @@ def run_face_mp(image, face_mesh):
 
 class VideoAnnotation:
     def __init__(self, min_detection_confidence=0.5, min_tracking_confidence=0.5, thickness=1, circle_radius=1,
-                 y_min=-5, y_max=8, x_min=-7, x_max=7, frame_rate_val=30, user='sugandh'):
+                 y_min=-5, y_max=8, x_min=-7, x_max=7, frame_rate_val=1, user='sugandh'):
         self.thickness = thickness
         self.min_tracking_confidence = min_tracking_confidence
         self.min_detection_confidence = min_detection_confidence
@@ -284,18 +284,18 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        yaw_min = -10
+                        yaw_min = -5
                         yaw_max = 7
                         for_yaw_min = -4
                         for_yaw_max = 6
                         for_pitch_min = 0
                         for_pitch_max = 9
-                        talk_min = 0.5
-                        talk_max = 3
-                        yawn_min = 4
-                        up_pitch_min = 10
-                        up_yaw_min = -4
-                        up_yaw_max = 6
+                        talk_min = 15
+                        talk_max = 30
+                        yawn_min = 40
+                        # up_pitch_min = 10
+                        # up_yaw_min = -4
+                        # up_yaw_max = 6
 
                         if y < yaw_min:
                             level_text = "looking right"
@@ -308,8 +308,8 @@ class VideoAnnotation:
                                 level_text = "yawning"
                             else:
                                 level_text = "looking forward"
-                        elif x > up_pitch_min and up_yaw_min < y < up_yaw_max:
-                            level_text = "looking up"
+                        # elif x > up_pitch_min and up_yaw_min < y < up_yaw_max:
+                        #     level_text = "looking up"
                         log = {"datetime": video_time, "activity": level_text}
                         print(log)
                         # datetime_object = datetime.datetime.now()
@@ -485,18 +485,18 @@ class VideoAnnotation:
                         y = angles[1] * 360
                         z = angles[2] * 360
 
-                        yaw_min = -10
+                        yaw_min = -5
                         yaw_max = 7
                         for_yaw_min = -4
                         for_yaw_max = 6
                         for_pitch_min = 0
                         for_pitch_max = 9
-                        talk_min = 0.5
-                        talk_max = 3
-                        yawn_min = 4
-                        up_pitch_min = 10
-                        up_yaw_min = -4
-                        up_yaw_max = 6
+                        talk_min = 15
+                        talk_max = 30
+                        yawn_min = 40
+                        # up_pitch_min = 10
+                        # up_yaw_min = -4
+                        # up_yaw_max = 6
 
                         if y < yaw_min:
                             level_text = "looking right"
@@ -509,8 +509,8 @@ class VideoAnnotation:
                                 level_text = "yawning"
                             else:
                                 level_text = "looking forward"
-                        elif x > up_pitch_min and up_yaw_min < y < up_yaw_max:
-                            level_text = "looking up"
+                        # elif x > up_pitch_min and up_yaw_min < y < up_yaw_max:
+                        #     level_text = "looking up"
                         log = {"datetime": video_time, "x": x, "y": y, "z": z, "mar": self.mar_main, "activity": level_text}
 
                     ear = eye_feature(landmarks_positions)
@@ -578,4 +578,4 @@ if __name__ == "__main__":
     # args = parseArg()
     video_annotator = VideoAnnotation()
     # file_name = args.user + args.ext
-    video_annotator.takelog(file_name='/home/argha/Documents/github/head_pose_estimation_mmWave/driving_dataset/dataset/20220828_17_15_04.mp4')
+    video_annotator.takelog(file_name='/home/argha/Documents/github/head_pose_estimation_mmWave/driving_dataset/dataset/20220903_16_53_20.mp4')
