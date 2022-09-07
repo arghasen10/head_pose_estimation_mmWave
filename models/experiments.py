@@ -34,7 +34,7 @@ for md_class,sp in zip([rf_model,vgg16_model,cnn_model],saved_paths):
 #static
 for user in ['argha','anirban','bishakh','aritra']:
     train_pattern=f"../static_dataset/processed/denoised/*!{user}"
-    test_pattern=f"../static_dataset/processed/denoised/*_{user}_*"
+    test_pattern=f"../static_dataset/processed/denoised/*_{user}*"
 
     X_train, X_test, y_train, y_test=read_mydata(train_pattern=train_pattern,test_pattern=test_pattern,class_count=200)
     #rf+vgg16+cnn_model
@@ -46,7 +46,7 @@ for user in ['argha','anirban','bishakh','aritra']:
 #Driving
 for user in ['bishakh3', 'anirban1', 'bishakh2', 'sugandh3', 'anirban2', 'sugandh2', 'bishakh1', 'sugandh1']:
     train_pattern=f"../driving_dataset/processed/denoised/*!{user}"
-    test_pattern=f"../driving_dataset/processed/denoised/*_{user}_*"
+    test_pattern=f"../driving_dataset/processed/denoised/*_{user}*"
 
     X_train, X_test, y_train, y_test=read_mydata(train_pattern=train_pattern,test_pattern=test_pattern,class_count=200)
     #rf+vgg16+cnn_model
@@ -58,7 +58,7 @@ for user in ['bishakh3', 'anirban1', 'bishakh2', 'sugandh3', 'anirban2', 'sugand
 #exp5-personalized
 #static
 for user in ['argha','anirban','bishakh','aritra']:
-    train_pattern=f"../static_dataset/processed/denoised/*_{user}_*"
+    train_pattern=f"../static_dataset/processed/denoised/*_{user}*"
 
     X_train, X_test, y_train, y_test=read_mydata(train_pattern=train_pattern,class_count=200)
     #rf+vgg16+cnn_model
@@ -69,7 +69,7 @@ for user in ['argha','anirban','bishakh','aritra']:
 
 #Driving
 for user in ['bishakh3', 'anirban1', 'bishakh2', 'sugandh3', 'anirban2', 'sugandh2', 'bishakh1', 'sugandh1']:
-    train_pattern=f"../driving_dataset/processed/denoised/*_{user}_*"
+    train_pattern=f"../driving_dataset/processed/denoised/*_{user}*"
 
     X_train, X_test, y_train, y_test=read_mydata(train_pattern=train_pattern,class_count=200)
     #rf+vgg16+cnn_model

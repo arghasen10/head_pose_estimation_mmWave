@@ -20,6 +20,10 @@ def convert_to_neumeric(label):
      'looking up': 0}
     return np.array(list(map(lambda e: lbl_map[e], label)))
 
+def remove_looking_up(data,label):
+    mask = label != 'looking up'
+    return data[mask],label[mask]
+
 def split_dataset(data,label):
     np.random.seed(101)
     X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.3, random_state=101)
@@ -28,14 +32,17 @@ def split_dataset(data,label):
 def read_mydata(train_pattern=None, test_pattern=None, class_count=600):
     if test_pattern is None:
         dataset = Dataset(loc=train_pattern,class_count=class_count,frame_stack=4,dop_min=1375,dop_max=5293)
-        data=dataset.data;label=convert_to_neumeric(dataset.label)
+        data,label=remove_looking_up(dataset.data,dataset.label)
+        label=convert_to_neumeric(label)
         return split_dataset(data,label)
     else:
         dataset = Dataset(loc=train_pattern,class_count=class_count,frame_stack=4,dop_min=1375,dop_max=5293)
-        X_train=dataset.data;y_train=convert_to_neumeric(dataset.label)
+        X_train,y_train=remove_looking_up(dataset.data,dataset.label)
+        y_train=convert_to_neumeric(y_train)
         
         dataset = Dataset(loc=test_pattern,class_count=class_count,frame_stack=4,dop_min=1375,dop_max=5293)
-        X_test=dataset.data;y_test=convert_to_neumeric(dataset.label)
+        X_test,y_test=remove_looking_up(dataset.data,dataset.label)
+        y_test=convert_to_neumeric(y_test)
         return X_train, X_test, y_train, y_test
 
 class Model:
