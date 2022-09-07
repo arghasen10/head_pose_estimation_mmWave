@@ -20,6 +20,7 @@ driving_dataset/processed/*.ipynb
 /**/ipynb_checkpoints
 /test
 /**/logs
-#/**/*.h5
+/**/*.h5
 models/results/
-models/saved_weights/
+
+
