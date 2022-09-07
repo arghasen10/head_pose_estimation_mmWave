@@ -24,7 +24,7 @@ def split_dataset(data,label):
     X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.3, random_state=101)
     return X_train, X_test, y_train, y_test
 
-def read_data(train_pattern=None, test_pattern=None, class_count=600):
+def read_mydata(train_pattern=None, test_pattern=None, class_count=600):
     if test_pattern is None:
         dataset = Dataset(loc=train_pattern,class_count=class_count,frame_stack=4,dop_min=1375,dop_max=5293)
         data=dataset.data;label=convert_to_neumeric(dataset.label)
@@ -87,7 +87,7 @@ class rf_model:
         class_report=classification_report(self.y_test,pred)
         f1=f1_score(self.y_test,pred,average="weighted")
         result="confusion matrix\n"+repr(conf_matrix)+"\n"+"report\n"+class_report+"\nf1_score(weighted)\n"+repr(f1)
-        with open(f"./results/{identifier}_rf_model.txt") as f:
+        with open(f"./results/{identifier}_rf_model.txt","w+") as f:
             f.write(result)
         print(result)
 
@@ -98,11 +98,12 @@ class vgg16_model:
         self.model=self.get_vgg16_model()
 
     def vgg16_process(self,X_train, X_test, y_train, y_test):
-        return preprocess_input(np.uint8(X_train*255)), preprocess_input(np.uint8(X_test*255)), y_train, y_test
+        return (preprocess_input(np.uint8(X_train[:,:,:,-3:]*255)),
+                preprocess_input(np.uint8(X_test[:,:,:,-3:]*255)), y_train, y_test)
 
     def get_vgg16_model(self):
         tf.random.set_seed(101)
-        vgg16_topless = VGG16(weights="imagenet", include_top=False, input_shape=(48,48,4))
+        vgg16_topless = VGG16(weights="imagenet", include_top=False, input_shape=(48,48,3))
         vgg16_topless.trainable = False
         model=tf.keras.Sequential([
             vgg16_topless,
@@ -130,7 +131,7 @@ class vgg16_model:
         class_report=classification_report(self.y_test,pred)
         f1=f1_score(self.y_test,pred,average="weighted")
         result="confusion matrix\n"+repr(conf_matrix)+"\n"+"report\n"+class_report+"\nf1_score(weighted)\n"+repr(f1)
-        with open(f"./results/{identifier}_vgg16_model.txt") as f:
+        with open(f"./results/{identifier}_vgg16_model.txt","w+") as f:
             f.write(result)
         print(result)
 
@@ -176,6 +177,6 @@ class cnn_model:
         class_report=classification_report(self.y_test,pred)
         f1=f1_score(self.y_test,pred,average="weighted")
         result="confusion matrix\n"+repr(conf_matrix)+"\n"+"report\n"+class_report+"\nf1_score(weighted)\n"+repr(f1)
-        with open(f"./results/{identifier}_cnn_model.txt") as f:
+        with open(f"./results/{identifier}_cnn_model.txt","w+") as f:
             f.write(result)
         print(result)
