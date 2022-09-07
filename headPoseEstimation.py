@@ -578,4 +578,4 @@ if __name__ == "__main__":
     # args = parseArg()
     video_annotator = VideoAnnotation()
     # file_name = args.user + args.ext
-    video_annotator.takelog(file_name='/home/argha/Documents/github/head_pose_estimation_mmWave/driving_dataset/dataset/20220903_16_53_20.mp4')
+    video_annotator.process(file_name='/home/argha/Documents/github/head_pose_estimation_mmWave/driving_dataset/dataset/20220903_16_53_20.mp4')
