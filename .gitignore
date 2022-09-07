@@ -21,3 +21,4 @@ driving_dataset/processed/*.ipynb
 /test
 /**/logs
 /**/*.h5
+models/results/
