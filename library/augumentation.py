@@ -52,7 +52,7 @@ class Dataset:
 
     def augument(self, stacked_doppz_sub_arr, num_aug=None):
         total_arr = np.concatenate([run_aug_once(stacked_doppz_sub_arr, self.pipe) for _ in range(num_aug)], axis=0)
-        final_indices = np.random.choice(np.arange(0, total_arr.shape[0]), size=self.class_count, replace=False)
+        final_indices = np.random.choice(np.arange(0, total_arr.shape[0]), size=self.class_count, replace=True)
         return total_arr[final_indices]
 
     def process(self, doppz_scaled_stacked, new_labels):

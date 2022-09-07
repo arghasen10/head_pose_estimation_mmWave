@@ -16,8 +16,7 @@ def convert_to_neumeric(label):
      'Talking': 1,
      'yawning': 2,
      'looking right': 3,
-     'looking left': 4,
-     'looking up': 0}
+     'looking left': 4}
     return np.array(list(map(lambda e: lbl_map[e], label)))
 
 def remove_looking_up(data,label):
@@ -131,7 +130,7 @@ class vgg16_model:
         best_save=tf.keras.callbacks.ModelCheckpoint(filepath=save_path,save_weights_only=True,
                                                     monitor='val_accuracy',mode='max',save_best_only=True)
         self.model.fit(self.X_train,self.y_train,
-                    epochs=2000,
+                    epochs=1,
                     validation_split=0.2,
                     batch_size=32,
                     callbacks=[best_save])
@@ -180,7 +179,7 @@ class cnn_model:
         best_save=tf.keras.callbacks.ModelCheckpoint(filepath=save_path,save_weights_only=True,
                                                     monitor='val_accuracy',mode='max',save_best_only=True)
         self.model.fit(self.X_train,self.y_train,
-                    epochs=2000,
+                    epochs=1,
                     validation_split=0.2,
                     batch_size=32,
                     callbacks=[best_save])
