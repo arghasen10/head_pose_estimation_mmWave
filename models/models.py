@@ -103,7 +103,7 @@ class vgg16_model:
 
     def get_vgg16_model(self):
         tf.random.set_seed(101)
-        vgg16_topless = VGG16(weights="imagenet", include_top=False, input_shape=(48,48,3))
+        vgg16_topless = VGG16(weights="./vgg16_weights/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5", include_top=False, input_shape=(48,48,3))
         vgg16_topless.trainable = False
         model=tf.keras.Sequential([
             vgg16_topless,
