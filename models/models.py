@@ -1,4 +1,5 @@
 import sys
+import pickle
 sys.path.append('../')
 import numpy as np
 import tensorflow as tf
@@ -87,6 +88,9 @@ class rf_model:
         class_report=classification_report(self.y_test,pred)
         f1=f1_score(self.y_test,pred,average="weighted")
         result="confusion matrix\n"+repr(conf_matrix)+"\n"+"report\n"+class_report+"\nf1_score(weighted)\n"+repr(f1)
+        pickle_log={'conf_mat':conf_matrix,'f1':f1}
+        with open(f"./results/{identifier}_rf_model.pickle","wb") as f:
+            pickle.dump(pickle_log, f, protocol=pickle.HIGHEST_PROTOCOL)
         with open(f"./results/{identifier}_rf_model.txt","w+") as f:
             f.write(result)
         print(result)
@@ -131,6 +135,9 @@ class vgg16_model:
         class_report=classification_report(self.y_test,pred)
         f1=f1_score(self.y_test,pred,average="weighted")
         result="confusion matrix\n"+repr(conf_matrix)+"\n"+"report\n"+class_report+"\nf1_score(weighted)\n"+repr(f1)
+        pickle_log={'conf_mat':conf_matrix,'f1':f1}
+        with open(f"./results/{identifier}_vgg16_model.pickle","wb") as f:
+            pickle.dump(pickle_log, f, protocol=pickle.HIGHEST_PROTOCOL)
         with open(f"./results/{identifier}_vgg16_model.txt","w+") as f:
             f.write(result)
         print(result)
@@ -177,6 +184,9 @@ class cnn_model:
         class_report=classification_report(self.y_test,pred)
         f1=f1_score(self.y_test,pred,average="weighted")
         result="confusion matrix\n"+repr(conf_matrix)+"\n"+"report\n"+class_report+"\nf1_score(weighted)\n"+repr(f1)
+        pickle_log={'conf_mat':conf_matrix,'f1':f1}
+        with open(f"./results/{identifier}_cnn_model.pickle","wb") as f:
+            pickle.dump(pickle_log, f, protocol=pickle.HIGHEST_PROTOCOL)
         with open(f"./results/{identifier}_cnn_model.txt","w+") as f:
             f.write(result)
         print(result)
