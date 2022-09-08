@@ -1,5 +1,6 @@
 import sys
 import pickle
+import datetime
 
 sys.path.append('../')
 import numpy as np
@@ -23,7 +24,7 @@ def convert_to_neumeric(label):
 
 
 def remove_looking_up(data, label):
-    mask = label != 'looking up'
+    mask = (label != 'looking up') #& (label != 'Talking')
     return data[mask], label[mask]
 
 
@@ -130,6 +131,12 @@ class vgg16_model:
         vgg16_topless = VGG16(weights="./vgg16_weights/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5",
                               include_top=False, input_shape=(48, 48, 3))
         vgg16_topless.trainable = False
+        # vgg16_topless.layers[-1].trainable=True
+        # vgg16_topless.layers[-2].trainable = True
+        # vgg16_topless.layers[-3].trainable = True
+        # vgg16_topless.layers[-4].trainable = True
+        # vgg16_topless.layers[-5].trainable = True
+        # vgg16_topless.layers[-6].trainable = True
         model = tf.keras.Sequential([
             vgg16_topless,
             tf.keras.layers.GlobalAveragePooling2D(),
@@ -144,11 +151,13 @@ class vgg16_model:
     def train(self, save_path=None):
         best_save = tf.keras.callbacks.ModelCheckpoint(filepath=save_path, save_weights_only=True,
                                                        monitor='val_accuracy', mode='max', save_best_only=True)
+        folder = datetime.datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
+        tbd = tf.keras.callbacks.TensorBoard(log_dir=f'logs/{folder}')
         self.model.fit(self.X_train, self.y_train,
-                       epochs=2000,
+                       epochs=600,
                        validation_split=0.2,
                        batch_size=32,
-                       callbacks=[best_save])
+                       callbacks=[best_save, tbd])
 
     def test(self, identifier=None):
         pred = np.argmax(self.model.predict(self.X_test), axis=1)
@@ -194,11 +203,13 @@ class cnn_model:
     def train(self, save_path=None):
         best_save = tf.keras.callbacks.ModelCheckpoint(filepath=save_path, save_weights_only=True,
                                                        monitor='val_accuracy', mode='max', save_best_only=True)
+        folder = datetime.datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
+        tbd = tf.keras.callbacks.TensorBoard(log_dir=f'logs/{folder}')
         self.model.fit(self.X_train, self.y_train,
-                       epochs=2000,
+                       epochs=600,
                        validation_split=0.2,
                        batch_size=32,
-                       callbacks=[best_save])
+                       callbacks=[best_save, tbd])
 
     def test(self, identifier=None):
         pred = np.argmax(self.model.predict(self.X_test), axis=1)
