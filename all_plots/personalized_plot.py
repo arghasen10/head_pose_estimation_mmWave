@@ -19,7 +19,7 @@ for user in static_users:
     users.append(i)
     i += 1
     for mdl in models_types:
-        for file in glob.glob(f'../models/results/static_{user}_lo*_{mdl}*.pickle'):
+        for file in glob.glob(f'../models/results/static_{user}_per*_{mdl}*.pickle'):
             with open(file, "rb") as f:
                 data = pickle.load(f)
                 user_f1.append(data['f1'])
